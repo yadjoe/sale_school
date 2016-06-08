@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<template id="report_invoice_document">
+			<t t-call="bsale.invoice_layout">
+				<div class="page">
+					<t t-call="bsale.header"/>
+					<t t-call="bsale.color"/>
+					<div id="invoice_header">
+						<div class="row">
+							<div class="col-xs-5 col-xs-offset-7">
+								<table>
+									<tr>
+										<td style="color: grey; border-right: 1px solid grey;padding-right: 5px">A</td>
+										<td style="padding-left: 5px;">
+											<address t-field="o.partner_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;], &quot;no_marker&quot;: true}"/>
+											<span t-field="o.partner_id.vat"/>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div style="margin-right:0px;margin-left: 0px;margin-bottom: 30px;" class="row">
+							<div class="highlight-color" style="font-size:xx-large;display: table">
+								<span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Facture</span>
+								<span t-if="o.type == 'out_invoice' and o.state == 'proforma2'">PRO-FORMA</span>
+								<span t-if="o.type == 'out_invoice' and o.state == 'draft'">Facture brouillon</span>
+								<span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Facture annulée</span>
+								<span t-if="o.type == 'out_refund'">Avoir</span>
+								<span t-if="o.type == 'in_refund'">Avoir fournisseur</span>
+								<span t-if="o.type == 'in_invoice'">Facture fournisseur</span>
+								<span t-field="o.number"/>
+							</div>
+							<table class="col-xs-7">
+								<tbody>
+									<tr>
+										<td class="bpro-detail-label">Date</td>
+										<td style="padding-left:5px"><span t-field="o.date_invoice"/></td>
+									</tr>
+									
+									<tr>
+										<td class="bpro-detail-label">N° de l'élève</td>
+										<td style="padding-left:5px"><span t-field="o.partner_id.identifier"/></td>
+									</tr>
+									<tr>
+										<t t-set="payment_date">à réception</t>
+										<t t-if="o.payment_term">
+											<t t-set="payment_date" t-value="o.payment_term.name"/>
+										</t>
+										<td class="bpro-detail-label">Date d'échéance</td>
+										<td style="padding-left:5px"><span t-esc="payment_date"/></td>
+									</tr>
+								</tbody>
+							</table>
+							<div class="col-xs-5">
+								<div style="width: 100%">
+									<h4 class="highlight-color">Montant TTC</h4>
+									<span style="font-weight: bold;font-size:x-large" t-field="o.amount_total"
+										t-field-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: &quot;o.currency_id&quot;}" />
+								</div>
+								<div t-if="o.company_id.bank_ids" style="color: grey;font-size: x-small">
+									<span>Paiement CB: </span><span t-field="o.company_id.bank_ids[0].acc_number" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="details-container">
+						<table class="table table-condensed" id="details-table">
+							<thead>
+								<tr class="bpro-head background-highlight-color">
+									<th>Prestation</th>
+									<th>Qte</th>
+									<th class="text-right">Prix unitaire</th>
+									<th class="text-right" groups="sale.group_discount_per_so_line">Réduction (%)</th>
+									<th class="text-right">Taxe</th>
+									<th class="text-right">Montant</th>
+								</tr>
+							</thead>
+							<tbody class="invoice_tbody">
+								<tr t-foreach="o.invoice_line" t-as="l" class="bpro-zebrure bpro-line">
+									<td><span t-field="l.name"/></td>
+									<td>
+										<span t-field="l.quantity"/>
+										<span t-field="l.uos_id" groups="product.group_uom"/>
+									</td>
+									<td class="text-right"><span t-field="l.price_unit"/></td>
+									<td class="text-right" groups="sale.group_discount_per_so_line"><span t-field="l.discount"/></td>
+									<td class="text-right">
+										<span t-esc="', '.join(map(lambda x: x.name, l.invoice_line_tax_id))"/>
+									</td>
+									<td class="text-right">
+										<span t-field="l.price_subtotal" t-field-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: &quot;o.currency_id&quot;}"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>					
+					</div>
+				</div>
+			</t>
+		</template>
+		<template id="account.report_invoice">
+			<t t-call="report.html_container">
+				<t t-foreach="doc_ids" t-as="doc_id">
+					<t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'bsale.report_invoice_document')"/>
+				</t>
+			</t>
+		</template>
+	</data>
+</openerp>

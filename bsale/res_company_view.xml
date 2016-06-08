@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<record model="ir.ui.view" id="view_company_inherit_form2">
+            <field name="name">res.company.form.inherit</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="model">res.company</field>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='account_grp']" position="after">
+                    <group name="bsale_partner" string="Client">
+                        <field name="partner_number_sequence"/>
+                    </group>
+                </xpath>
+                <field name="rml_footer_readonly" position="after">
+                	<field name="highlight_color"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

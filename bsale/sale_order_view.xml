@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<!-- remove override opening a popup when editing order lines -->
+        <delete 
+        	model="ir.ui.view" 
+        	search="[('name','=','sale.order.form.editable.list')]"/>
+        
+        <record id="view_sale_form_base_inherited" model="ir.ui.view">
+            <field name="name">bsale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+            	<field name="date_order" position="after">
+            		<field name="date_limit_validity"/>
+            	</field>
+            </field>
+        </record>
+    </data>
+</openerp>

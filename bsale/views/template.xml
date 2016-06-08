@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<template id="invoice_layout">
+			<!-- Multicompany -->
+			<t t-if="o and 'company_id' in o">
+				<t t-set="company" t-value="o.company_id" />
+			</t>
+			<t t-if="not o or not 'company_id' in o">
+				<t t-set="company" t-value="res_company" />
+			</t>
+
+			<t t-call="report.external_layout_header" />
+			<t t-raw="0" />
+			<t t-call="bsale.sale_layout_footer" />
+		</template>
+		<template id="sale_order_layout">
+			<!-- Multicompany -->
+			<t t-if="o and 'company_id' in o">
+				<t t-set="company" t-value="o.company_id" />
+			</t>
+			<t t-if="not o or not 'company_id' in o">
+				<t t-set="company" t-value="res_company" />
+			</t>
+
+			<t t-call="report.external_layout_header" />
+			<t t-raw="0" />
+			<t t-call="bsale.sale_layout_footer">
+				<t t-set="is_sale_order" t-value="True"/>
+			</t>
+		</template>
+		
+		<template id="header">
+			<style type="text/css">
+				.bpro-detail-label {
+					color: grey;
+					border-right: 1px
+					solid grey;
+					padding-right: 5px;
+					width: 1%;
+					white-space:nowrap;
+				}
+				.bpro-head {
+					-webkit-border-radius: 3px;
+					-moz-border-radius: 3px;
+					border-radius: 3px;
+					color: white;
+				}
+				.bpro-line {
+				}
+				.details-container {
+					-webkit-box-shadow:2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+					-moz-box-shadow:2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+					box-shadow:2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+					z-index:-1;
+					position: relative;
+					width: 100%;
+				}
+
+				.bpro-total-amount {
+					position: absolute;
+					bottom: 0px;right:0px
+				}
+				.bpro-zebrure:nth-child(even) {
+					background-color:white;
+				}
+				.bpro-zebrure:nth-child(odd) {
+					-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+					-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+					box-shadow:inset 0px 1px 0px 0px #ffffff;
+					background:-webkit-gradient(linear, left top, left bottom,
+					color-stop(0.05, #f9f9f9), color-stop(1,#e9e9e9));
+					background:-moz-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					background:-webkit-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					background:-o-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					background:-ms-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					background:linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%);
+					filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9',
+					endColorstr='#e9e9e9',GradientType=0);
+					background-color:#f9f9f9;
+					-moz-border-radius:0px;
+					-webkit-border-radius:0px;
+					border-radius:0px;
+				}
+
+			</style>
+		</template>
+		<template id="color">
+			<style type="text/css">
+				.highlight-color {
+					color: <t t-esc="o.company_id.highlight_color"/>;
+				}
+				.background-highlight-color {
+					background-color: <t t-esc="o.company_id.highlight_color"/>;
+				}
+			</style>
+		</template>
+		
+		<template id="invoice_footer">
+			<div style="width: 100%;display: none;" id="invoice_footer">
+				<div style="width: 100%;display: table;-webkit-box-shadow:2px 2px 2px 0 rgba(0, 0, 0, 0.5);">
+					<div style="width: 67%; float: left; padding-left: 5px">
+						<p t-if="o.comment">
+                			<strong>Commentaire:</strong>
+                			<span t-field="o.comment"/>
+                		</p>
+					</div>
+					<div style="width: 33%; float: right">
+						<table class="table">
+							<tr class="border-black">
+								<td>
+									<strong>Montant hors taxes</strong>
+								</td>
+								<td class="text-right">
+									<span t-field="o.amount_untaxed"
+										t-field-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: &quot;o.currency_id&quot;}" />
+								</td>
+							</tr>
+							<tr t-foreach="group_taxes(o)" t-as="t">
+								<td><t t-esc="t['name']"/></td>
+								<td class="text-right">
+									<span><t t-esc="formatLang(t['amount'], digits=0, currency_obj=o.currency_id)"/></span>
+								</td>
+							</tr>
+							<tr class="border-black highlight-color" style="font-weight: bold;">
+								<td>
+									<strong>Montant TTC</strong>
+								</td>
+								<td class="text-right">
+									<span t-field="o.amount_total"
+										t-field-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: &quot;o.currency_id&quot;}" />
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</template>
+		
+		<template id="sale_layout_footer" name="sale report footer">
+			<div class="footer">
+				<t t-call="bsale.invoice_footer" />
+				<div class="text-center">
+		            <ul t-if="not company.custom_footer" class="list-inline">
+		                <li t-if="company.phone">Tél: <span t-field="company.phone"/></li>
+		
+		                <li t-if="company.fax and company.phone">&amp;bull;</li>
+		                <li t-if="company.fax">Fax: <span t-field="company.fax"/></li>
+		
+		                <li t-if="company.email">&amp;bull;</li>
+		                <li t-if="company.email">Email: <span t-field="company.email"/></li>
+		
+		                <li t-if="company.website">&amp;bull;</li>
+		                <li t-if="company.website">Site web: <span t-field="company.website"/></li>
+		            </ul>
+		
+		            <t t-if="company.custom_footer">
+		                <span t-raw="company.rml_footer"/>
+		            </t>
+		
+		            <ul class="list-inline">
+		                <li>Page:</li>
+		                <li><span class="page"/></li>
+		                <li>/</li>
+		                <li><span class="topage"/></li>
+		            </ul>
+		        </div>
+				<script>
+					function subst() {
+						var vars = {};
+						var x = document.location.search.substring(1).split('&amp;');
+						for (var i in x) {
+							var z = x[i].split('=', 2);
+							vars[z[0]] = unescape(z[1]);
+						}
+						var x=['frompage', 'topage', 'page', 'webpage', 'section','subsection', 'subsubsection'];
+						for (var i in x) {
+							var y = document.getElementsByClassName(x[i]);
+							for (var j=0; j&lt;y.length; ++j)
+								y[j].textContent = vars[x[i]];
+						}
+						if(vars['topage'] === vars['page']){
+							document.getElementById('invoice_footer').style.display = "block";
+							document.getElementById('bottom_footer').style.display = "none";
+						}
+					}
+				</script>
+				<t t-call="bsale.color" />
+			</div>
+		</template>		
+		
+        <template id="assets_backend" name="bsale assets" inherit_id="report.layout">
+        	<xpath expr="//head" position="inside">
+        		<style type="text/css">
+        			.bpro-detail-label {
+            			color: grey;
+            			border-right: 1px solid grey;
+            			padding-right: 5px;
+            			width: 1%;
+            			white-space:nowrap;
+            		}
+            		.bpro-head {
+            			-webkit-border-radius: 3px;
+            			-moz-border-radius: 3px;
+            			border-radius: 3px;
+            			color: white;
+            		}
+            		.bpro-line {
+		      		}
+		      		.bpro-total-amount-container {
+		      			-webkit-box-shadow:2px 2px 2px 0px rgba(0, 0, 0, 0.5);
+						-moz-box-shadow:2px 2px 2px 0px rgba(0, 0, 0, 0.5);
+						box-shadow:2px 2px 2px 0px rgba(0, 0, 0, 0.5);
+						position: absolute;
+						top: 265px;
+						right: 14px;
+						height: 750px;
+						width: 97%;
+						z-index:-1;
+			      	}
+			      	
+			      	.bpro-total-amount {
+			      		position: absolute;
+			      		bottom: 0px;right:0px;
+			      		width: 30%;
+			      	}
+			      	.bpro-zebrure:nth-child(even) {
+			      		background-color:white;
+			      	}
+					.bpro-zebrure:nth-child(odd) {
+			 			-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+			   			-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+					    box-shadow:inset 0px 1px 0px 0px #ffffff;
+					    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #e9e9e9));
+					    background:-moz-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					    background:-webkit-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					    background:-o-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					    background:-ms-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+					    background:linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%);
+					    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9',GradientType=0);
+					    background-color:#f9f9f9;
+					    -moz-border-radius:0px;
+					    -webkit-border-radius:0px;
+					    border-radius:0px;
+				    }
+        		</style>
+        	</xpath>
+        </template>
+    </data>
+</openerp>
